@@ -49,9 +49,7 @@ while (true) {
                     switch (recieved.slice(0, 4)) {
                         case "EHLO":
                         case "HELO":
-                            await send(
-                                "250 hi " + recieved.split(" ")[1] + "\r\n",
-                            )
+                            await send("250 customsmtp.jmeow.net\r\n")
                             break
                         case "MAIL":
                             await send("250 OK\r\n")
