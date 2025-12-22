@@ -38,7 +38,7 @@ while (true) {
                 console.log("received:", received)
                 if (receivingData) {
                     data += received
-                    if (data.split("\r\n.\r\n").length) {
+                    if (data.split("\r\n.\r\n").length > 1) {
                         receivingData = false
                         data = data.split("\r\n.\r\n")[0]
                         console.log("received data:\n\n\n" + data)
