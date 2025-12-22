@@ -22,11 +22,7 @@ while (true) {
         console.log("Connection")
         console.log(
             "sent:",
-            await conn.write(
-                toAscii(
-                    "220 customsmtp.jmeow.net (do i need parentheses here) ready\n",
-                ),
-            ),
+            await conn.write(toAscii("220 customsmtp.jmeow.net ready\n")),
         )
         try {
             while (true) {
@@ -36,8 +32,7 @@ while (true) {
                 if (bytesCount == null) {
                     break
                 }
-                console.log("bytes:", bytesCount)
-                console.log("received:", decoder.decode(buf), buf)
+                console.log("received:", decoder.decode(buf))
             }
         } catch (err) {
             console.log("error", err)
