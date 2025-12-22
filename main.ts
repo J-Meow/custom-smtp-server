@@ -1,3 +1,4 @@
+const debugLogs = false
 function toAscii(text: string) {
     const out = new Uint8Array(text.length)
     for (let i = 0; i < text.length; i++) {
@@ -19,9 +20,13 @@ const listener = Deno.listen({
 while (true) {
     const conn = await listener.accept()
     ;(async () => {
-        console.log("Connection")
+        if (debugLogs) console.log("Connection")
         async function send(text: string) {
-            console.log("sent:", await conn.write(toAscii(text)), text)
+            if (debugLogs) {
+                console.log("sent:", await conn.write(toAscii(text)), text)
+            } else {
+                await conn.write(toAscii(text))
+            }
         }
         await send("220 customsmtp.jmeow.net ready\r\n")
         let data = ""
@@ -29,19 +34,19 @@ while (true) {
         try {
             while (true) {
                 const buf = new Uint8Array(1024)
-                console.log("waiting")
+                if (debugLogs) console.log("waiting")
                 const bytesCount = await conn.read(buf)
                 if (bytesCount == null) {
                     break
                 }
                 const received = decoder.decode(buf)
-                console.log("received:", received)
+                if (debugLogs) console.log("received:", received)
                 if (receivingData) {
                     data += received
                     if (data.split("\r\n.\r\n").length > 1) {
                         receivingData = false
                         data = data.split("\r\n.\r\n")[0]
-                        console.log("received data:\n\n\n" + data)
+                        console.log("received email:\n\n" + data)
                         data = ""
                         await send("250 OK\r\n")
                     }
@@ -72,6 +77,6 @@ while (true) {
             console.log("error", err)
         }
         conn.close()
-        console.log("closed")
+        if (debugLogs) console.log("closed")
     })()
 }
