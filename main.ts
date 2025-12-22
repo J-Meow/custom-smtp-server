@@ -20,10 +20,12 @@ while (true) {
     const conn = await listener.accept()
     ;(async () => {
         console.log("Connection")
-        console.log(
-            "sent:",
-            await conn.write(toAscii("220 customsmtp.jmeow.net ready\n")),
-        )
+        async function send(text: string) {
+            console.log("sent:", await conn.write(toAscii(text)), text)
+        }
+        await send("220 customsmtp.jmeow.net ready\r\n")
+        let data = ""
+        let receivingData = false
         try {
             while (true) {
                 const buf = new Uint8Array(1024)
@@ -32,7 +34,41 @@ while (true) {
                 if (bytesCount == null) {
                     break
                 }
-                console.log("received:", decoder.decode(buf))
+                const recieved = decoder.decode(buf)
+                console.log("received:", recieved)
+                if (receivingData) {
+                    data += recieved
+                    if (data.split("\r\n.\r\n").length) {
+                        receivingData = false
+                        data = data.split("\r\n.\r\n")[0]
+                        console.log("Recieved data:\n\n\n" + data)
+                        data = ""
+                        await send("250 OK\r\n")
+                    }
+                } else {
+                    switch (recieved.slice(0, 4)) {
+                        case "EHLO":
+                        case "HELO":
+                            await send(
+                                "250 hi " + recieved.split(" ")[1] + "\r\n",
+                            )
+                            break
+                        case "MAIL":
+                            await send("250 OK\r\n")
+                            break
+                        case "RCPT":
+                            await send("250 OK\r\n")
+                            break
+                        case "DATA":
+                            await send("354 End <CR><LF>.<CR><LF>\r\n")
+                            receivingData = true
+                            break
+                        case "QUIT":
+                            await send("221 Bye\r\n")
+                            break
+                        default:
+                    }
+                }
             }
         } catch (err) {
             console.log("error", err)
