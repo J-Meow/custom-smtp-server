@@ -110,12 +110,36 @@ smtpServer(async (email) => {
         }
     })
     const body = email.split("\r\n\r\n").slice(1).join("\r\n\r\n")
-    await sql`INSERT INTO public.emails("from", "to", "body", "headers", "subject") VALUES(${headers.from}, ${headers.to}, ${body}, ${JSON.stringify(headers)}, ${headers.subject})`
-    console.log(
-        "Received email from " +
-            headers.from +
-            " to " +
-            headers.to +
-            ", added to DB",
-    )
+    const from = headers.from.includes("<")
+        ? headers.from.split("<")[1].split(">")[0]
+        : headers.from
+    const to = headers.to
+        .split(",")
+        .map((to) =>
+            to.includes("<")
+                ? to.split("<")[1].split(">")[0].trim()
+                : to.trim(),
+        )
+        .join(",")
+    await sql`INSERT INTO public.emails("from", "to", "body", "headers", "subject") VALUES(${from}, ${to}, ${body}, ${JSON.stringify(headers)}, ${headers.subject})`
+    console.log("Received email from " + from + " to " + to + ", added to DB")
+})
+
+Deno.serve({ port: 8045 }, async (req) => {
+    const url = new URL(req.url)
+
+    if (url.pathname.startsWith("/email/")) {
+        const emailId = url.pathname.slice(7).split("/")[0]
+        const emailResult =
+            await sql`SELECT "from", "to", "body", "headers", "subject" FROM public.emails WHERE id=${emailId}`
+        if (emailResult.length) {
+            const returnVal = emailResult[0]
+            returnVal.headers = JSON.parse(returnVal.headers)
+            return new Response(JSON.stringify(returnVal), {
+                headers: { "Content-Type": "application/json" },
+            })
+        }
+    }
+
+    return new Response(null, { status: 404 })
 })
