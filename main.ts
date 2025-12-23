@@ -95,7 +95,7 @@ smtpServer((email) => {
             if (currentHeaderName) {
                 headers[currentHeaderName] = currentHeaderData
             }
-            currentHeaderName = headerLine.split(":")[0]
+            currentHeaderName = headerLine.split(":")[0].toLowerCase()
             currentHeaderData = headerLine
                 .split(":")
                 .slice(1)
