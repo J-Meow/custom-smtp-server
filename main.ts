@@ -126,6 +126,12 @@ smtpServer(async (email) => {
 })
 
 Deno.serve({ port: 8045 }, async (req) => {
+    if (
+        req.headers.get("Authorization") !==
+        "Bearer " + Deno.env.get("APIKEY")
+    ) {
+        return new Response(null, { status: 403 })
+    }
     const url = new URL(req.url)
 
     if (url.pathname.startsWith("/email/")) {
