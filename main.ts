@@ -111,5 +111,11 @@ smtpServer(async (email) => {
     })
     const body = email.split("\r\n\r\n").slice(1).join("\r\n\r\n")
     await sql`INSERT INTO public.emails("from", "to", "body", "headers") VALUES(${headers.from}, ${headers.to}, ${body}, ${JSON.stringify(headers)})`
-    console.log(headers, body)
+    console.log(
+        "Received email from " +
+            headers.from +
+            " to " +
+            headers.to +
+            ", added to DB",
+    )
 })
