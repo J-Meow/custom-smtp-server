@@ -105,6 +105,6 @@ smtpServer((email) => {
             currentHeaderData += headerLine.trimStart()
         }
     })
-    const body = email.split("\r\n\r\n")[1]
+    const body = email.split("\r\n\r\n").slice(1).join("\r\n\r\n")
     console.log(headers, body)
 })
