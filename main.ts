@@ -137,29 +137,46 @@ Deno.serve({ port: 8045 }, async (req) => {
     if (url.pathname.startsWith("/email/")) {
         const type = url.pathname.slice(7).split("/")[0]
         const info = url.pathname.slice(7).split("/")[1]
-        let emailResult
-        switch (type) {
-            case "id":
-                emailResult =
-                    await sql`SELECT "id", "from", "to", "body", "headers", "subject" FROM public.emails WHERE id=${info}`
-                break
-            case "subject":
-                emailResult =
-                    await sql`SELECT "id", "from", "to", "body", "headers", "subject" FROM public.emails WHERE subject=${info}`
-                break
-            case "to":
-                emailResult =
-                    await sql`SELECT "id", "from", "to", "body", "headers", "subject" FROM public.emails WHERE "to"=${info}`
-                break
-            default:
-                return new Response(null, { status: 404 })
-        }
-        if (emailResult.length) {
-            const returnVal = emailResult.sort((a, b) => b.id - a.id)[0]
-            returnVal.headers = JSON.parse(returnVal.headers)
-            return new Response(JSON.stringify(returnVal), {
-                headers: { "Content-Type": "application/json" },
-            })
+        if (req.method == "GET") {
+            let emailResult
+            switch (type) {
+                case "id":
+                    emailResult =
+                        await sql`SELECT "id", "from", "to", "body", "headers", "subject" FROM public.emails WHERE id=${info}`
+                    break
+                case "subject":
+                    emailResult =
+                        await sql`SELECT "id", "from", "to", "body", "headers", "subject" FROM public.emails WHERE subject=${info}`
+                    break
+                case "to":
+                    emailResult =
+                        await sql`SELECT "id", "from", "to", "body", "headers", "subject" FROM public.emails WHERE "to"=${info}`
+                    break
+                default:
+                    return new Response(null, { status: 404 })
+            }
+            if (emailResult.length) {
+                const returnVal = emailResult.sort((a, b) => b.id - a.id)[0]
+                returnVal.headers = JSON.parse(returnVal.headers)
+                return new Response(JSON.stringify(returnVal), {
+                    headers: { "Content-Type": "application/json" },
+                })
+            }
+        } else if (req.method == "DELETE") {
+            switch (type) {
+                case "id":
+                    await sql`DELETE FROM public.emails WHERE id=${info}`
+                    break
+                case "subject":
+                    await sql`DELETE FROM public.emails WHERE subject=${info}`
+                    break
+                case "to":
+                    await sql`DELETE FROM public.emails WHERE "to"=${info}`
+                    break
+                default:
+                    return new Response(null, { status: 404 })
+            }
+            return new Response(null, { status: 204 })
         }
     }
 
