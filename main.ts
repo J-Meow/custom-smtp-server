@@ -134,9 +134,16 @@ Deno.serve({ port: 8045 }, async (req) => {
     }
     const url = new URL(req.url)
 
-    if (url.pathname.startsWith("/email/")) {
-        const type = url.pathname.slice(7).split("/")[0]
-        const info = url.pathname.slice(7).split("/")[1]
+    if (
+        url.pathname.startsWith("/email/") ||
+        url.pathname.startsWith("/emails/")
+    ) {
+        const type = url.pathname
+            .slice(url.pathname.startsWith("/email/") ? 7 : 8)
+            .split("/")[0]
+        const info = url.pathname
+            .slice(url.pathname.startsWith("/email/") ? 7 : 8)
+            .split("/")[1]
         if (req.method == "GET") {
             let emailResult
             switch (type) {
@@ -156,8 +163,17 @@ Deno.serve({ port: 8045 }, async (req) => {
                     return new Response(null, { status: 404 })
             }
             if (emailResult.length) {
-                const returnVal = emailResult.sort((a, b) => b.id - a.id)[0]
-                returnVal.headers = JSON.parse(returnVal.headers)
+                let returnVal
+                if (url.pathname.startsWith("/emails/")) {
+                    returnVal = emailResult.sort((a, b) => b.id - a.id)
+                    returnVal = returnVal.map((x) => ({
+                        ...x,
+                        headers: JSON.parse(x.headers),
+                    }))
+                } else {
+                    returnVal = emailResult.sort((a, b) => b.id - a.id)[0]
+                    returnVal.headers = JSON.parse(returnVal.headers)
+                }
                 return new Response(JSON.stringify(returnVal), {
                     headers: { "Content-Type": "application/json" },
                 })
