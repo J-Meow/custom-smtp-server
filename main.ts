@@ -1,3 +1,7 @@
+import postgres from "npm:postgres"
+
+const sql = postgres()
+
 const debugLogs = false
 function toAscii(text: string) {
     const out = new Uint8Array(text.length)
@@ -85,7 +89,7 @@ async function smtpServer(callback: (email: string) => void) {
     }
 }
 
-smtpServer((email) => {
+smtpServer(async (email) => {
     const headerLines = email.split("\r\n\r\n")[0].split("\r\n")
     const headers: { [key: string]: string } = {}
     let currentHeaderName = ""
@@ -106,5 +110,6 @@ smtpServer((email) => {
         }
     })
     const body = email.split("\r\n\r\n").slice(1).join("\r\n\r\n")
+    await sql`INSERT INTO public.emails("from", "to", "body", "headers") VALUES(${headers.from}, ${headers.to}, ${body}, ${JSON.stringify(headers)})`
     console.log(headers, body)
 })
