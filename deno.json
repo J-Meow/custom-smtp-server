@@ -1,5 +1,6 @@
 {
     "tasks": {
-        "dev": "deno run --watch --allow-net --allow-read --allow-env --env-file main.ts"
+        "dev": "deno run --watch --allow-net --allow-read --allow-env --env-file main.ts",
+        "hackclubalt": "deno run --watch --allow-net --allow-read --allow-env --allow-write --allow-run --env-file hackclubalt.ts"
     }
 }
