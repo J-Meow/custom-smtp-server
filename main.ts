@@ -121,8 +121,14 @@ smtpServer(async (email) => {
                 : to.trim(),
         )
         .join(",")
-    await sql`INSERT INTO public.emails("from", "to", "body", "headers", "subject") VALUES(${from}, ${to}, ${body}, ${JSON.stringify(headers)}, ${headers.subject})`
-    console.log("Received email from " + from + " to " + to + ", added to DB")
+    try {
+        await sql`INSERT INTO public.emails("from", "to", "body", "headers", "subject") VALUES(${from}, ${to}, ${body}, ${JSON.stringify(headers)}, ${headers.subject})`
+        console.log(
+            "Received email from " + from + " to " + to + ", added to DB",
+        )
+    } catch (err) {
+        console.error(err)
+    }
 })
 
 Deno.serve({ port: 8045 }, async (req) => {
