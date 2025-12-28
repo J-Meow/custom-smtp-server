@@ -14,6 +14,10 @@ await using page = await browser.newPage("https://account.hackclub.com")
 
 await page.waitForNetworkIdle()
 await (await page.$(`input[type="email"]`))!.type(email)
+await fetch("http://" + Deno.env.get("SERVERURL") + ":8045/email/to/" + email, {
+    headers: { authorization: "Bearer " + Deno.env.get("APIKEY") },
+    method: "DELETE",
+})
 await (await page.$(`button[type="submit"]`))!.click()
 await page.waitForNavigation()
 if (!(await page.$(`#code-input-code`))) {
@@ -25,13 +29,6 @@ if (!(await page.$(`#code-input-code`))) {
 }
 
 async function getOTP() {
-    await fetch(
-        "http://" + Deno.env.get("SERVERURL") + ":8045/email/to/" + email,
-        {
-            headers: { authorization: "Bearer " + Deno.env.get("APIKEY") },
-            method: "DELETE",
-        },
-    )
     let otp = ""
     while (true) {
         try {
