@@ -1,5 +1,9 @@
-const altID = 1
+const altID = Deno.args[0]
+if (!altID) {
+    throw "No ID"
+}
 const email = "jmeow.hc.alt." + altID + "@customsmtp.jmeow.net"
+console.log(`Creating alt with ID ${altID} and email ${email}`)
 
 import { launch } from "jsr:@astral/astral"
 
@@ -132,9 +136,13 @@ const xoxd = (await page.cookies("https://app.slack.com")).filter(
 const xoxc = await page.evaluate(
     `JSON.parse(localStorage.getItem("localConfig_v2")).teams.E09V59WQY1E.token`,
 )
-console.log(xoxc, xoxd)
+await Deno.writeTextFile(
+    "hackclubalts.txt",
+    `${altID} ${email} ${xoxc} ${xoxd}\n`,
+    { append: true },
+)
+console.log(email, xoxc, xoxd)
 console.log("Go to https://slack.com and run this to sign in:")
 console.log(
     `document.cookie = "d=${xoxd}; Domain=.slack.com"; location.href = "https://hackclub.slack.com"`,
 )
-// await page.waitForTimeout(999999)
