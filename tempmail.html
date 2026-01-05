@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Temporary Email</title>
+        <meta charset="utf-8" />
+        <style>
+            * {
+                color-scheme: light dark;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Temporary Email</h1>
+        <p>
+            Send emails to <code id="email">[loading...]</code> and see them
+            appear here
+        </p>
+        <button id="newEmail">New email</button>
+        <script>
+            fetch("/getEmail")
+                .then((res) => res.text())
+                .then((email) => {
+                    document.getElementById("email").innerText = email
+                })
+            fetch("/emails")
+                .then((res) => res.json())
+                .then((emails) => {
+                    console.log(emails)
+                })
+            document
+                .getElementById("newEmail")
+                .addEventListener("click", () => {
+                    if (
+                        !confirm(
+                            "New email? This will erase all emails sent to this address",
+                        )
+                    )
+                        return
+                    fetch("/newEmail", { method: "POST" }).then(() =>
+                        location.reload(),
+                    )
+                })
+        </script>
+    </body>
+</html>
