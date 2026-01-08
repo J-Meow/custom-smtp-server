@@ -16,6 +16,8 @@
             appear here
         </p>
         <button id="newEmail">New email</button>
+        <h2>Emails:</h2>
+        <ul id="emails"></ul>
         <script>
             fetch("/getEmail")
                 .then((res) => res.text())
@@ -26,6 +28,11 @@
                 .then((res) => res.json())
                 .then((emails) => {
                     console.log(emails)
+                    emails.forEach((email) => {
+                        const li = document.createElement("li")
+                        li.innerText = JSON.stringify(email)
+                        document.getElementById("emails").appendChild(li)
+                    })
                 })
             document
                 .getElementById("newEmail")
