@@ -30,7 +30,26 @@
                     console.log(emails)
                     emails.forEach((email) => {
                         const li = document.createElement("li")
-                        li.innerText = JSON.stringify(email)
+                        const subject = document.createElement("h2")
+                        subject.innerText = email.subject
+                        li.appendChild(subject)
+                        const from = document.createElement("p")
+                        from.innerText = "From: " + email.from
+                        li.appendChild(from)
+                        const details = document.createElement("details")
+                        details.innerHTML = "<summary>Headers</summary>"
+                        const headers = document.createElement("pre")
+                        headers.innerText = Object.keys(email.headers)
+                            .map(
+                                (headerName) =>
+                                    `${headerName}: ${email.headers[headerName]}`,
+                            )
+                            .join("\n")
+                        details.appendChild(headers)
+                        li.appendChild(details)
+                        const body = document.createElement("p")
+                        body.innerText = email.body
+                        li.appendChild(body)
                         document.getElementById("emails").appendChild(li)
                     })
                 })
