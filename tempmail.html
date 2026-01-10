@@ -4,8 +4,38 @@
         <title>Temporary Email</title>
         <meta charset="utf-8" />
         <style>
-            * {
-                color-scheme: light dark;
+            html {
+                background: black;
+                font-family: sans-serif;
+                color-scheme: dark;
+                color: white;
+            }
+            #newEmail {
+                cursor: pointer;
+                background: none;
+                border: none;
+                text-decoration: underline;
+            }
+            #emails {
+                list-style-type: none;
+                padding: 0;
+                margin: 0;
+            }
+            #emails li {
+                border: 1px solid white;
+                padding: 20px;
+                margin: 0;
+                border-radius: 20px;
+            }
+            #emails li h2 {
+                margin-top: 0;
+            }
+            #emails li p {
+                margin-bottom: 0;
+            }
+            details {
+                color: #aaa;
+                overflow-x: scroll;
             }
         </style>
     </head>
@@ -15,7 +45,7 @@
             Send emails to <code id="email">[loading...]</code> and see them
             appear here
         </p>
-        <button id="newEmail">New email</button>
+        <button id="newEmail">New email address</button>
         <h2>Emails:</h2>
         <ul id="emails"></ul>
         <script>
@@ -53,6 +83,9 @@
                                 .join("\n")
                             details.appendChild(headers)
                             li.appendChild(details)
+                            const bodyHeader = document.createElement("h3")
+                            bodyHeader.innerText = "Raw content:"
+                            li.appendChild(bodyHeader)
                             const body = document.createElement("p")
                             body.innerText = email.body
                             li.appendChild(body)
