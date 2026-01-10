@@ -59,7 +59,6 @@
                 fetch("/emails")
                     .then((res) => res.json())
                     .then((emails) => {
-                        console.log(emails)
                         emails.forEach((email) => {
                             if (receivedEmailIds.includes(email.id)) {
                                 return
