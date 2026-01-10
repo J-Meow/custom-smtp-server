@@ -24,35 +24,44 @@
                 .then((email) => {
                     document.getElementById("email").innerText = email
                 })
-            fetch("/emails")
-                .then((res) => res.json())
-                .then((emails) => {
-                    console.log(emails)
-                    emails.forEach((email) => {
-                        const li = document.createElement("li")
-                        const subject = document.createElement("h2")
-                        subject.innerText = email.subject
-                        li.appendChild(subject)
-                        const from = document.createElement("p")
-                        from.innerText = "From: " + email.from
-                        li.appendChild(from)
-                        const details = document.createElement("details")
-                        details.innerHTML = "<summary>Headers</summary>"
-                        const headers = document.createElement("pre")
-                        headers.innerText = Object.keys(email.headers)
-                            .map(
-                                (headerName) =>
-                                    `${headerName}: ${email.headers[headerName]}`,
-                            )
-                            .join("\n")
-                        details.appendChild(headers)
-                        li.appendChild(details)
-                        const body = document.createElement("p")
-                        body.innerText = email.body
-                        li.appendChild(body)
-                        document.getElementById("emails").appendChild(li)
+            const receivedEmailIds = []
+            function loadEmails() {
+                fetch("/emails")
+                    .then((res) => res.json())
+                    .then((emails) => {
+                        console.log(emails)
+                        emails.forEach((email) => {
+                            if (receivedEmailIds.includes(email.id)) {
+                                return
+                            }
+                            receivedEmailIds.push(email.id)
+                            const li = document.createElement("li")
+                            const subject = document.createElement("h2")
+                            subject.innerText = email.subject
+                            li.appendChild(subject)
+                            const from = document.createElement("p")
+                            from.innerText = "From: " + email.from
+                            li.appendChild(from)
+                            const details = document.createElement("details")
+                            details.innerHTML = "<summary>Headers</summary>"
+                            const headers = document.createElement("pre")
+                            headers.innerText = Object.keys(email.headers)
+                                .map(
+                                    (headerName) =>
+                                        `${headerName}: ${email.headers[headerName]}`,
+                                )
+                                .join("\n")
+                            details.appendChild(headers)
+                            li.appendChild(details)
+                            const body = document.createElement("p")
+                            body.innerText = email.body
+                            li.appendChild(body)
+                            document.getElementById("emails").appendChild(li)
+                        })
                     })
-                })
+            }
+            loadEmails()
+            setInterval(loadEmails, 3000)
             document
                 .getElementById("newEmail")
                 .addEventListener("click", () => {
