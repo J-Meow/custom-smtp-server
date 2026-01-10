@@ -2,7 +2,11 @@ const emailEnd = "@customsmtp.jmeow.net"
 const activeEmails: { [key: string]: { email: string } } = {}
 
 Deno.serve({ port: 6853 }, async (req, connInfo) => {
-    console.log(connInfo.remoteAddr.hostname)
+    const hostname = connInfo.remoteAddr.hostname
+    if (!req.url.endsWith("/emails"))
+        console.log(
+            `${new Date().toLocaleString()} - ${hostname} - ${req.method} ${req.url}`,
+        )
     const url = new URL(req.url)
     if (url.pathname == "/" && req.method == "GET") {
         return new Response(Deno.readTextFileSync("tempmail.html"), {
@@ -24,18 +28,18 @@ Deno.serve({ port: 6853 }, async (req, connInfo) => {
         }
     }
     if (url.pathname == "/getEmail" && req.method == "GET") {
-        if (!(connInfo.remoteAddr.hostname in activeEmails)) {
-            newEmail(connInfo.remoteAddr.hostname)
+        if (!(hostname in activeEmails)) {
+            newEmail(hostname)
         }
-        return new Response(activeEmails[connInfo.remoteAddr.hostname].email, {
+        return new Response(activeEmails[hostname].email, {
             status: 200,
         })
     }
     if (url.pathname == "/emails" && req.method == "GET") {
-        if (!(connInfo.remoteAddr.hostname in activeEmails)) {
-            newEmail(connInfo.remoteAddr.hostname)
+        if (!(hostname in activeEmails)) {
+            newEmail(hostname)
         }
-        const email = activeEmails[connInfo.remoteAddr.hostname].email
+        const email = activeEmails[hostname].email
         const response = await (
             await fetch(
                 "http://" +
@@ -55,7 +59,7 @@ Deno.serve({ port: 6853 }, async (req, connInfo) => {
         })
     }
     if (url.pathname == "/newEmail" && req.method == "POST") {
-        newEmail(connInfo.remoteAddr.hostname)
+        newEmail(hostname)
         return new Response(null, {
             status: 204,
         })
