@@ -2,7 +2,8 @@ const emailEnd = "@customsmtp.jmeow.net"
 const activeEmails: { [key: string]: { email: string } } = {}
 
 Deno.serve({ port: 6853 }, async (req, connInfo) => {
-    const hostname = connInfo.remoteAddr.hostname
+    const hostname =
+        req.headers.get("x-real-ip") || connInfo.remoteAddr.hostname
     if (!req.url.endsWith("/emails"))
         console.log(
             `${new Date().toLocaleString()} - ${hostname} - ${req.method} ${req.url}`,
